@@ -14,7 +14,7 @@ helper getKloutScore: (username, callback) ->
 		res.on 'data', (chunk) ->
 			data += chunk
 		.on 'end', ->
-			callback? if data.length > 0 and JSON.parse(data).status is 200 then JSON.parse(data).users[0] else 'null'
+			callback? if data.length > 0 and JSON.parse(data).status is 200 then JSON.stringify(JSON.parse(data).users[0]) else 'null'
 	.end()
 
 helper getFromCache: (key, callback) ->
@@ -44,14 +44,14 @@ helper setInCache: (key, value, lifetime, callback) ->
 	.connect()
 	
 get '/klout/:username.json', ->
-	urlKey = "Kloutify/klout/#{@username}.json"
+	urlKey = "/klout/#{@username}.json"
 	response.header 'Access-Control-Allow-Origin', '*'
 	response.contentType 'application/json'
-	getFromCache urlKey, (json) =>
-		return response.send json if json isnt false
-		getKloutScore @username, (data) ->
-			response.send data
-			setInCache urlKey, data, 60*60*1, (didIt) -> {}
+	getFromCache urlKey, (data) =>
+		return response.send data if data isnt false and data isnt null
+		getKloutScore @username, (json) ->
+			response.send json
+			setInCache urlKey, json, 60*60*1, (didIt) -> {}
 	
 get '/', ->
 	render 'index'
