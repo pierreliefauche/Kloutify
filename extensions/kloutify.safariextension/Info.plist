@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>2.2</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>6</string>
 	<key>Chrome</key>
 	<dict/>
 	<key>Content</key>
@@ -24,30 +24,31 @@
 		<dict>
 			<key>End</key>
 			<array>
-				<string>kloutify.js</string>
+				<string>jquery.js</string>
+				<string>script.js</string>
 			</array>
 		</dict>
+		<key>Stylesheets</key>
+		<array>
+			<string>style.css</string>
+		</array>
 	</dict>
 	<key>Description</key>
-	<string>Display Klout scores right inside Twitter.com</string>
+	<string>Display Klout scores right inside any website by hovering a Twitter username</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
 	<dict>
 		<key>Website Access</key>
 		<dict>
-			<key>Allowed Domains</key>
-			<array>
-				<string>*.twitter.com</string>
-			</array>
 			<key>Include Secure Pages</key>
 			<true/>
 			<key>Level</key>
-			<string>Some</string>
+			<string>All</string>
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>http://kloutify.com/safari-update-manifest.plist</string>
+	<string>http://kloutify.com/extension/safari-update-manifest.plist</string>
 	<key>Website</key>
 	<string>http://kloutify.com</string>
 </dict>

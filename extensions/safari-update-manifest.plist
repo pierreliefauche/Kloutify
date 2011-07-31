@@ -10,11 +10,11 @@
        <key>Developer Identifier</key>
        <string>6Q4F5Y72R9</string>
        <key>CFBundleVersion</key>
-       <string>3</string>
+       <string>6</string>
        <key>CFBundleShortVersionString</key>
-       <string>1.0</string>
+       <string>2.2</string>
        <key>URL</key>
-       <string>http://kloutify.com/kloutify.safariextz</string>
+       <string>http://kloutify.com/extension/kloutify.safariextz</string>
      </dict>
    </array>
 </dict>

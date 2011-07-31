@@ -1,0 +1,36 @@
+#kloutify {
+	display: block !important;
+	visibility: visible !important;
+	opacity: 0.8 !important;
+	padding: 5px !important;
+	margin: 0 !important;
+	font-size: 10px !important;
+	position: absolute !important;
+	z-index: 100000 !important;
+	top: -1000px;
+	left: -1000px;
+}
+
+#kloutify > div:first-child {
+	padding: 0 !important;
+	top: 50% !important;
+	right: 0 !important;
+	margin: -4px 0 0 0 !important;
+	background-position: bottom left;
+	position: absolute !important;
+	background: url(https://si0.twimg.com/a/1311969089/phoenix/img/tipsy.gif) no-repeat top right;
+	width: 5px !important;
+	height: 9px !important;
+	display:block !important;
+}
+
+#kloutify > div:last-child {
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	padding: 5px 8px 4px 8px !important;
+	background-color: black;
+	color: white;
+	max-width: 200px !important;
+	text-align: center;
+	margin: 0 !important;
+}

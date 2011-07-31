@@ -1,13 +1,15 @@
 {
 	"name": "Kloutify",
-	"version": "1.0",
-	"description": "Show Klout score on Twitter.com",
+	"version": "2.2",
+	"update_url": "http://kloutify.com/extension/chrome-update-manifest.xml",
+	"description": "Show Klout score on any website by hovering a Twitter username",
 	"icons": { "16": "Icon-16.png",
              "48": "Icon-48.png",
             "128": "Icon-128.png" },
 	"content_scripts": [{
-		"matches": ["*://twitter.com/*"],
-		"js": ["kloutify.js"],
+		"matches": ["<all_urls>"],
+		"css": ["style.css"],
+		"js": ["jquery.js", "script.js"],
 		"run_at": "document_end"
 		}]
 }
