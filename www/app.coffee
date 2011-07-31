@@ -13,9 +13,8 @@ helper getKloutScore: (username, callback) ->
 		data = ''
 		res.on 'data', (chunk) ->
 			data += chunk
-		.on 'end', =>
-			score = if data.length > 0 then Math.round JSON.parse(data).users[0].kscore else "'??'"
-			callback? score
+		.on 'end', ->
+			callback? if data.length > 0 and JSON.parse(data).status is 200 then JSON.parse(data).users[0] else 'null'
 	.end()
 
 helper getFromCache: (key, callback) ->
@@ -43,19 +42,17 @@ helper setInCache: (key, value, lifetime, callback) ->
 			callback if error? then false else true
 		, lifetime
 	.connect()
-
-get '/update/:username.json', ->
-	urlKey = "Kloutify/update/#{@username}.json"
-	username = @username
-	response.contentType ' application/javascript'
+	
+get '/klout/:username.json', ->
+	console.log 'REQUEST'
+	urlKey = "Kloutify/klout/#{@username}.json"
+	response.header 'Access-Control-Allow-Origin', '*'
+	response.contentType 'application/json'
 	getFromCache urlKey, (json) =>
-		if json?
-			response.send json
-		else
-			getKloutScore username, (score) ->
-				json = "window.updateKloutifyScore('#{username}', #{score})"
-				response.send json
-				setInCache urlKey, json, 60*60*1, (didIt) -> {}
+		return response.send json if json isnt false
+		getKloutScore @username, (data) ->
+			response.send data
+			setInCache urlKey, data, 60*60*1, (didIt) -> {}
 	
 get '/', ->
 	render 'index'
@@ -65,19 +62,20 @@ get '*', ->
 	
 view index: ->
 	div id: 'container', ->
-		iframe allowtransparency: 'true', frameborder: '0', scrolling: 'no', src: 'http://platform.twitter.com/widgets/tweet_button.html?count=none&text=Kloutify%3A%20Klout%20scores%20right%20inside%20Twitter.com'
+		iframe allowtransparency: 'true', frameborder: '0', scrolling: 'no', src: 'http://platform.twitter.com/widgets/tweet_button.html?count=none&text=Kloutify%3A%20Klout%20scores%20right%20inside%20any%20website'
 		h1 'Kloutify'
 		h2 ->
 			a href: 'http://klout.com', onclick: "_gaq.push(['_trackEvent', 'External', 'Visit', 'Klout']);", target:'_blank', 'Klout'
 			text ' scores right inside '
-			a href: 'http://twitter.com', onclick: "_gaq.push(['_trackEvent', 'External', 'Visit', 'Twitter']);", target:'_blank', 'Twitter.com'
+			a href: 'http://twitter.com', class: 'overlined', onclick: "_gaq.push(['_trackEvent', 'External', 'Visit', 'Twitter']);", target:'_blank', 'Twitter.com'
+			strong ' any website'
 		img alt: 'Screenshot of Kloutify used on Twitter.com', src: '/newsycombinator.png'
 		img alt: 'Screenshot of Kloutify used on Twitter.com', class: 'last', src: '/techcrunch.png'
 		p class:'install', ->
 			text 'Install extension for '
-			a href: '/kloutify.crx', class:'download', target:'_blank', onclick: "_gaq.push(['_trackEvent', 'Extension', 'Download', 'Chrome']);", 'Chrome'
+			a href: '/extension/kloutify.crx', class:'download', target:'_blank', onclick: "_gaq.push(['_trackEvent', 'Extension', 'Download', 'Chrome']);", 'Chrome'
 			text ' or '
-			a href: '/kloutify.safariextz', class:'download', onclick: "_gaq.push(['_trackEvent', 'Extension', 'Download', 'Safari']);", target:'_blank', 'Safari'
+			a href: '/extension/kloutify.safariextz', class:'download', onclick: "_gaq.push(['_trackEvent', 'Extension', 'Download', 'Safari']);", target:'_blank', 'Safari'
 		p class: 'profile', ->
 			text 'Browser extensions by '
 			a href: 'http://twitter.com/pierreliefauche', class: 'user-profile-link', onclick: "_gaq.push(['_trackEvent', 'Profile', 'Visit', 'pierreliefauche']);", target:'_blank', '@pierreliefauche'
@@ -91,13 +89,12 @@ layout ->
 	html ->
 		head ->
 			meta charset: 'utf-8'
-			title 'Kloutify | Klout scores right inside Twitter.com'
-			meta name:'description', content:'Kloutify is a browser extension displaying Klout scores on Twitter.com when hovering a username'
+			title 'Kloutify | Klout scores right inside any website'
+			meta name:'description', content:'Kloutify is a browser extension displaying Klout scores when hovering a Twitter username on any website'
 			# base href: 'http://kloutify.com/'
 			link rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'
 			link rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico'
 			link rel: 'stylesheet', href: '/app.css'
-			link rel: 'stylesheet', href: 'http://kloutify.com/extension/kloutify.css'
 			script type: 'text/javascript', '''
 				var _gaq = _gaq || [];
 				  _gaq.push(['_setAccount', 'UA-24838928-1']);
@@ -109,8 +106,4 @@ layout ->
 				    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 				  })();
 			'''
-			# script type: 'text/javascript', 'var addthis_config = {"data_track_clickback":true};'
-			# script type: 'text/javascript', src: 'http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4e21ac6c0f0647ee'
-			script type: 'text/javascript', src: 'http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'
-			script type: 'text/javascript', src: 'http://kloutify.com/extension/kloutify.js'
 		body -> @content
