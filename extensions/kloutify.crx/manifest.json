@@ -1,6 +1,6 @@
 {
 	"name": "Kloutify",
-	"version": "0.8",
+	"version": "0.9",
 	"description": "Show Klout score on Twitter.com",
 	"content_scripts": [{
 		"matches": ["*://twitter.com/*"],
