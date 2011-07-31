@@ -48,7 +48,7 @@ var kloutifyInit = function() {
 			kloutify.offset({top: -1000, left: -1000});
 		}
 
-		jQuery('body').delegate("a.twitter-atreply, a.user-profile-link.", "mouseenter", function(event){
+		jQuery('body').delegate("a.twitter-atreply, a.user-profile-link", "mouseenter", function(event){
 			var el = jQuery(event.currentTarget);
 			var href = el.attr('href');
 			var username = href.substr(href.lastIndexOf('/')+1);

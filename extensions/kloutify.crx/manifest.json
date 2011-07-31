@@ -1,7 +1,10 @@
 {
 	"name": "Kloutify",
-	"version": "0.9",
+	"version": "1.0",
 	"description": "Show Klout score on Twitter.com",
+	"icons": { "16": "Icon-16.png",
+             "48": "Icon-48.png",
+            "128": "Icon-128.png" },
 	"content_scripts": [{
 		"matches": ["*://twitter.com/*"],
 		"js": ["kloutify.js"],
