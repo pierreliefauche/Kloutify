@@ -19,7 +19,7 @@ jQuery(document).ready(function(){
 			window.updateKloutifyScore(username, kloutifyScores[username]);
 		}
 		else {
-			jQuery.getJSON("http://kloutify.drkbrd.com/update/"+username+".json?jsoncallback=?");
+			jQuery.getJSON("http://kloutify.com/update/"+username+".json?jsoncallback=?");
 		}
 	}
 	
