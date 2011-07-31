@@ -1,0 +1,123 @@
+@import url(http://fonts.googleapis.com/css?family=Play:400,700);
+
+/* @override 
+	http://kloutify.com/app.css
+	http://localhost:5678/app.css
+*/
+
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	text-decoration: none;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* 
+Layout
+*/
+
+body {
+	background-color: #e4e4e4;
+	text-align: center;
+	height: 100%;
+	color: #5b5b5b;
+	font-family: Helvetica, Arial, sans-serif;
+}
+a, h1 {
+	color: #60555a;
+	font-weight: bold;
+}
+a:hover {
+	color: #dd441c;
+}
+#container {
+	font-family: 'Play', Helvetica, Arial, sans-serif;
+	position: absolute;
+	padding-left: 10px;
+	top: 50%;
+	left: 50%;
+	width: 540px;
+	margin: -200px auto auto -280px;
+	height: 382px;
+	border-left: 10px solid #dd441c;
+}
+#container > * {
+	float: left;
+	clear: left;
+}
+h1 {
+	text-transform: uppercase;
+	margin-top: -9px !important;
+	font-size: 3em;
+	letter-spacing: -2px;
+}
+h2 {
+	font-size: 1.4em;
+	margin: 10px 0px 30px;
+}
+img {
+	-webkit-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+	box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+	-moz-border-radius: 3px;
+  	-webkit-border-radius: 3px;
+  	border-radius: 3px;   
+  	-moz-background-clip: padding;
+  	-webkit-background-clip: padding-box;
+  	background-clip: padding-box;
+}
+img.last {
+	margin: 10px 0 20px;
+}
+.install {
+	font-size: 1.5em;
+	margin-bottom: 30px;
+}
+.profile {
+	font-size: 0.8em;
+	letter-spacing: 1px;
+	margin-top: 2px;
+}
