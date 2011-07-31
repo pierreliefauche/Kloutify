@@ -44,7 +44,6 @@ helper setInCache: (key, value, lifetime, callback) ->
 	.connect()
 	
 get '/klout/:username.json', ->
-	console.log 'REQUEST'
 	urlKey = "Kloutify/klout/#{@username}.json"
 	response.header 'Access-Control-Allow-Origin', '*'
 	response.contentType 'application/json'
