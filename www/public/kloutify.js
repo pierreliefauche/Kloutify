@@ -3,7 +3,7 @@ jQuery(document).ready(function(){
 	var kloutifyAnchor = null
 	var kloutifyUsername = null;
 	var kloutifyOffset = null;
-	var kloutifyScores = [];
+	var kloutifyScores = {};
 	var kloutifyTimer = null;
 	
 	var kloutify = jQuery('<div id="kloutify"><div></div><div id="kloutify-score">K 34</div></div>');
