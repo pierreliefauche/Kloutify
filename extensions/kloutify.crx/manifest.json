@@ -4,7 +4,6 @@
 	"description": "Show Klout score on Twitter.com",
 	"content_scripts": [{
 		"matches": ["*://twitter.com/*"],
-		"css": ["kloutify.css"],
 		"js": ["kloutify.js"],
 		"run_at": "document_end"
 		}]
