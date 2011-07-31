@@ -81,12 +81,11 @@ a:hover {
 	left: 50%;
 	width: 540px;
 	margin: -200px auto auto -280px;
-	height: 382px;
+	height: 367px;
 	border-left: 10px solid #dd441c;
 }
 #container > * {
 	float: left;
-	clear: left;
 }
 h1 {
 	text-transform: uppercase;
@@ -120,4 +119,9 @@ img.last {
 	font-size: 0.8em;
 	letter-spacing: 1px;
 	margin-top: 2px;
+}
+#container iframe {
+	float: right;
+	width: 55px;
+	height: 20px;
 }

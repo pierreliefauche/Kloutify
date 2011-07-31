@@ -55,7 +55,7 @@ get '/update/:username.json', ->
 			getKloutScore username, (score) ->
 				json = "window.updateKloutifyScore('#{username}', #{score})"
 				response.send json
-				setInCache urlKey, json, 60*60*24, (didIt) -> {}
+				setInCache urlKey, json, 60*60*1, (didIt) -> {}
 	
 get '/', ->
 	render 'index'
@@ -65,6 +65,7 @@ get '*', ->
 	
 view index: ->
 	div id: 'container', ->
+		iframe allowtransparency: 'true', frameborder: '0', scrolling: 'no', src: 'http://platform.twitter.com/widgets/tweet_button.html?count=none&text=Kloutify%3A%20Klout%20scores%20right%20inside%20Twitter.com'
 		h1 'Kloutify'
 		h2 ->
 			a href: 'http://klout.com', onclick: "_gaq.push(['_trackEvent', 'External', 'Visit', 'Klout']);", target:'_blank', 'Klout'
@@ -80,9 +81,10 @@ view index: ->
 		p class: 'profile', ->
 			text 'Browser extensions by '
 			a href: 'http://twitter.com/pierreliefauche', class: 'user-profile-link', onclick: "_gaq.push(['_trackEvent', 'Profile', 'Visit', 'pierreliefauche']);", target:'_blank', '@pierreliefauche'
-		p class: 'profile',->
-			text 'requested by '
-			a href: 'http://twitter.com/mortazakarimi', class: 'user-profile-link', onclick: "_gaq.push(['_trackEvent', 'Profile', 'Visit', 'mortazakarimi']);", target:'_blank', '@mortazakarimi'
+		# p class: 'profile',->
+		# 	text 'requested by '
+		# 	a href: 'http://twitter.com/mortazakarimi', class: 'user-profile-link', onclick: "_gaq.push(['_trackEvent', 'Profile', 'Visit', 'mortazakarimi']);", target:'_blank', '@mortazakarimi'
+		
 	
 layout ->
 	doctype 5
