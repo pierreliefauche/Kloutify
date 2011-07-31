@@ -11,7 +11,7 @@
       element_id: 'kloutify',
       score_id: 'kloutify-score',
       timer_value: 600,
-      host: 'localhost:5678',
+      host: 'kloutify.com',
       username_regex: /https?(?::\/\/|%3A%2F%2F)twitter\.com(?:\/|%2F)(?:#!(?:\/|%2F))?([_a-zA-Z0-9]*)(?:&.*)?$/i,
       on_twitter_regex: /^https?:\/\/twitter\.com\//i,
       on_twitter_username_regex: /^(?:https?:\/\/twitter\.com)?(?:\/#!)?\/([_a-zA-Z0-9]*)$/i
