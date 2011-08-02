@@ -12,14 +12,19 @@
       score_id: 'kloutify-score',
       timer_value: 600,
       host: 'kloutify.com',
-      username_regex: /https?(?::\/\/|%3A%2F%2F)twitter\.com(?:\/|%2F)(?:#!(?:\/|%2F))?([_a-zA-Z0-9]*)(?:&.*)?$/i,
-      on_twitter_regex: /^https?:\/\/twitter\.com\//i,
-      on_twitter_username_regex: /^(?:https?:\/\/twitter\.com)?(?:\/#!)?\/([_a-zA-Z0-9]*)$/i
+      username_regex: /https?(?::\/\/|%3A%2F%2F)(?:www(?:\.|%2E))?twitter(?:\.|%2E)com(?:\/|%2F)(?:#!(?:\/|%2F))?([_a-zA-Z0-9]*)(?:&.*)?$/i,
+      on_twitter_regex: /^https?:\/\/(?:[^\/]*)?twitter\.com\//i,
+      on_twitter_username_regex: /^(?:https?:\/\/(?:www(?:\.|%2E))?twitter(?:\.|%2E)com)?(?:\/#!)?\/([_a-zA-Z0-9]*)$/i,
+      on_twitter_platform: false,
+      on_twitter_platform_regex: /^https?:\/\/platform\.twitter\.com\//i
     };
     function Kloutify(windowLocation) {
       this.element = $("<div id=\"" + this.config.element_id + "\"><div></div><div id=\"" + this.config.score_id + "\">??</div></div>");
       if (windowLocation.match(this.config.on_twitter_regex)) {
         this.config.username_regex = this.config.on_twitter_username_regex;
+        if (windowLocation.match(this.config.on_twitter_platform_regex)) {
+          this.config.on_twitter_platform = true;
+        }
       }
     }
     Kloutify.prototype.init = function() {
@@ -29,9 +34,20 @@
         return this.mouseleft(event);
       }, this));
     };
-    Kloutify.prototype.extractUsername = function(href) {
-      var matches;
-      matches = href.match(this.config.username_regex);
+    Kloutify.prototype.extractUsername = function(anchor) {
+      var matches, regex, text;
+      regex = this.config.username_regex;
+      text = anchor.attr('href');
+      if (this.config.on_twitter_platform) {
+        if ('follow-button' === anchor.attr('id')) {
+          text = anchor.attr('title');
+          regex = /@([_a-zA-Z0-9]*)/i;
+        } else if (anchor.hasClass('nickname')) {
+          text = anchor.text();
+          regex = /^(.*)$/i;
+        }
+      }
+      matches = text.match(regex);
       if (matches != null) {
         return matches[1];
       } else {
@@ -41,7 +57,7 @@
     Kloutify.prototype.mouseentered = function(event) {
       var el, username;
       el = $(event.currentTarget);
-      username = this.extractUsername(el.attr('href'));
+      username = this.extractUsername(el);
       if (username != null) {
         return this.timer = setTimeout(__bind(function() {
           return this.update(el, username);
