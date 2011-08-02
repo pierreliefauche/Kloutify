@@ -1,7 +1,6 @@
 #kloutify {
 	display: block !important;
 	visibility: visible !important;
-	opacity: 0.8 !important;
 	padding: 5px !important;
 	margin: 0 !important;
 	font-size: 10px !important;
@@ -9,6 +8,7 @@
 	z-index: 100000 !important;
 	top: -1000px;
 	left: -1000px;
+	opacity: 1.0 !important;
 }
 
 #kloutify > div:first-child {
@@ -25,12 +25,14 @@
 }
 
 #kloutify > div:last-child {
+	font-family: Helvetica, Arial, sans-serif;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	padding: 5px 8px 4px 8px !important;
-	background-color: black;
+	background-color: rgba(0, 0, 0, 0.8)!important;
 	color: white;
 	max-width: 200px !important;
 	text-align: center;
 	margin: 0 !important;
+	line-height: 15px !important;
 }

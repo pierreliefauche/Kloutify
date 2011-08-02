@@ -10,14 +10,17 @@ class Kloutify
 		score_id: 'kloutify-score'
 		timer_value: 600
 		host: 'kloutify.com'
-		username_regex: /https?(?::\/\/|%3A%2F%2F)twitter\.com(?:\/|%2F)(?:#!(?:\/|%2F))?([_a-zA-Z0-9]*)(?:&.*)?$/i
-		on_twitter_regex: /^https?:\/\/twitter\.com\//i
-		on_twitter_username_regex: /^(?:https?:\/\/twitter\.com)?(?:\/#!)?\/([_a-zA-Z0-9]*)$/i
-	
+		username_regex: /https?(?::\/\/|%3A%2F%2F)(?:www(?:\.|%2E))?twitter(?:\.|%2E)com(?:\/|%2F)(?:#!(?:\/|%2F))?([_a-zA-Z0-9]*)(?:&.*)?$/i
+		on_twitter_regex: /^https?:\/\/(?:[^\/]*)?twitter\.com\//i
+		on_twitter_username_regex: /^(?:https?:\/\/(?:www(?:\.|%2E))?twitter(?:\.|%2E)com)?(?:\/#!)?\/([_a-zA-Z0-9]*)$/i
+		on_twitter_platform: no
+		on_twitter_platform_regex: /^https?:\/\/platform\.twitter\.com\//i
+
 	constructor: (windowLocation)->
 		@element = $ "<div id=\"#{@config.element_id}\"><div></div><div id=\"#{@config.score_id}\">??</div></div>"
 		if windowLocation.match @config.on_twitter_regex
 			@config.username_regex = @config.on_twitter_username_regex
+			@config.on_twitter_platform = yes if windowLocation.match @config.on_twitter_platform_regex
 		
 	init: ->
 		$('body').append(@element)
@@ -26,13 +29,24 @@ class Kloutify
 		.delegate 'a', 'mouseleave', (event) =>
 			@mouseleft event
 			
-	extractUsername: (href) ->
-		matches = href.match @config.username_regex
+	extractUsername: (anchor) ->
+		regex = @config.username_regex
+		text = anchor.attr('href')
+		
+		if @config.on_twitter_platform
+			if 'follow-button' is anchor.attr 'id'
+				text = anchor.attr 'title'
+				regex = /@([_a-zA-Z0-9]*)/i
+			else if anchor.hasClass 'nickname'
+				text = anchor.text()
+				regex = /^(.*)$/i
+		
+		matches = text.match regex
 		if matches? then matches[1] else null
 		
 	mouseentered: (event) ->
 		el = $ event.currentTarget
-		username = @extractUsername el.attr('href')
+		username = @extractUsername el
 		@timer = setTimeout =>
 			@update el, username
 		, @config.timer_value if username?
