@@ -12,6 +12,7 @@
 }
 
 #kloutify > div:first-child {
+	opacity:0.8 !important;
 	padding: 0 !important;
 	top: 50% !important;
 	right: 0 !important;

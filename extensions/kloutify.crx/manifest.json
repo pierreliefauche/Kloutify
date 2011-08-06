@@ -1,6 +1,6 @@
 {
 	"name": "Kloutify",
-	"version": "2.4.1",
+	"version": "2.4.2",
 	"update_url": "http://kloutify.com/extension/chrome-update-manifest.xml",
 	"description": "Show Klout score on any website by hovering a Twitter username",
 	"icons": { "16": "Icon-16.png",
