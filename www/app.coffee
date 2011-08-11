@@ -4,44 +4,59 @@ using 'http'
 def memcache: require('./node_modules/memcache')
 
 helper getKloutScore: (username, callback) ->
-	http.request
-		method: 'GET'
-		host: 'api.klout.com'
-		port: 80
-		path: "/1/klout.json?users=#{username}&key=jgjncb86z9fsw7sbufpu2ysg"
-	.on 'response', (res) ->
-		data = ''
-		res.on 'data', (chunk) ->
-			data += chunk
-		.on 'end', ->
-			callback? if data.length > 0 and JSON.parse(data).status is 200 then JSON.stringify(JSON.parse(data).users[0]) else 'null'
-	.end()
+	try
+		http.request
+			method: 'GET'
+			host: 'api.klout.com'
+			port: 80
+			path: "/1/klout.json?users=#{username}&key=jgjncb86z9fsw7sbufpu2ysg"
+		.on 'response', (res) ->
+			console.log "RESPONSE STATUS CODE FROM API: #{res.statusCode}"
+			return callback 'null' if res.statusCode isnt 200
+			
+			data = ''
+			res.on 'data', (chunk) ->
+				data += chunk
+			.on 'end', ->
+				callback if data.length > 0 then JSON.stringify(JSON.parse(data).users[0]) else 'null'
+		.end()
+	catch error
+		console.log "ERROR WHILE GETTING SCORE OF #{username} FROM THE API"
+		console.log error
 
 helper getFromCache: (key, callback) ->
-	client = new memcache.Client()
-	client.on 'error', (err) ->
-		callback false
-	.on 'timeout', () ->
-		callback false
-	.on 'connect', ()->
-		client.get key, (error, result) ->
-			client.close()
-			result = false if error?
-			callback result
-	.connect()	
+	try
+		client = new memcache.Client()
+		client.on 'error', (err) ->
+			callback false
+		.on 'timeout', () ->
+			callback false
+		.on 'connect', ()->
+			client.get key, (error, result) ->
+				client.close()
+				result = false if error?
+				callback result
+		.connect()	
+	catch error
+		console.log 'ERROR WHILE GETTING SCORE FROM CACHE'
+		console.log error
 
 helper setInCache: (key, value, lifetime, callback) ->
-	client = new memcache.Client()
-	client.on 'error', (err) ->
-		callback false
-	.on 'timeout', () ->
-		callback false
-	.on 'connect', ()->
-		client.set key, value, (error, result) ->
-			client.close()
-			callback if error? then false else true
-		, lifetime
-	.connect()
+	try
+		client = new memcache.Client()
+		client.on 'error', (err) ->
+			callback false
+		.on 'timeout', () ->
+			callback false
+		.on 'connect', ()->
+			client.set key, value, (error, result) ->
+				client.close()
+				callback? if error? then false else true
+			, lifetime
+		.connect()
+	catch error
+		console.log 'ERROR WHILE SETTING SCORE INTO CACHE'
+		console.log error
 	
 get '/klout/:username.json', ->
 	urlKey = "/klout/#{@username}.json"
@@ -51,7 +66,7 @@ get '/klout/:username.json', ->
 		return response.send data if data isnt false and data isnt null
 		getKloutScore @username, (json) ->
 			response.send json
-			setInCache urlKey, json, 60*60*1, (didIt) -> {}
+			if json isnt 'null' then setInCache urlKey, json, 60*60*1
 	
 get '/', ->
 	render 'index'
