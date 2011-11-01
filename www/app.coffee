@@ -13,7 +13,6 @@ require('zappa').run 5340, ->
 				port: 80
 				path: "/1/klout.json?users=#{username}&key=jgjncb86z9fsw7sbufpu2ysg"
 			.on 'response', (res) ->
-				console.log "RESPONSE STATUS CODE FROM API HEADERS: #{res.statusCode}"
 				return callback 'null' if res.statusCode isnt 200
 			
 				data = ''
@@ -21,8 +20,7 @@ require('zappa').run 5340, ->
 					data += chunk
 				.on 'end', ->
 					parsedData = JSON.parse(data)
-					console.log "RESPONSE STATUS CODE FROM API: #{parsedData.status}"
-					return callback 'null' if parsedData.status isnt 200
+					return callback 'null' if parsedData.status isnt 200 or not parsedData.users? or typeof parsedData.users is 'undefined'
 					callback if data.length > 0 then JSON.stringify(parsedData.users[0]) else 'null'
 			.end()
 		catch error
