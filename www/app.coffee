@@ -2,6 +2,7 @@
 
 http = require 'http'
 memcache = require './node_modules/memcache'
+defaultScoreJson = '{ "kscore": 10 }'
 
 require('zappa').run 5340, ->
 
@@ -13,15 +14,15 @@ require('zappa').run 5340, ->
 				port: 80
 				path: "/1/klout.json?users=#{username}&key=jgjncb86z9fsw7sbufpu2ysg"
 			.on 'response', (res) ->
-				return callback 'null' if res.statusCode isnt 200
+				return callback defaultScoreJson if res.statusCode isnt 200
 			
 				data = ''
 				res.on 'data', (chunk) ->
 					data += chunk
 				.on 'end', ->
 					parsedData = JSON.parse(data)
-					return callback 'null' if parsedData.status isnt 200 or not parsedData.users? or typeof parsedData.users is 'undefined'
-					callback if data.length > 0 then JSON.stringify(parsedData.users[0]) else 'null'
+					return callback defaultScoreJson if parsedData.status isnt 200 or not parsedData.users? or typeof parsedData.users is 'undefined'
+					callback if data.length > 0 then JSON.stringify(parsedData.users[0]) else defaultScoreJson
 			.end()
 		catch error
 			console.log "ERROR WHILE GETTING SCORE OF #{username} FROM THE API"
