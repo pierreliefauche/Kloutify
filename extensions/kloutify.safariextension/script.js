@@ -1,6 +1,5 @@
 (function() {
   var Kloutify, kloutify;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   Kloutify = (function() {
     Kloutify.prototype.username = null;
     Kloutify.prototype.offset = null;
@@ -8,6 +7,7 @@
     Kloutify.prototype.timer = null;
     Kloutify.prototype.element = null;
     Kloutify.prototype.config = {
+      default_score: '10',
       element_id: 'kloutify',
       score_id: 'kloutify-score',
       timer_value: 600,
@@ -19,7 +19,12 @@
       on_twitter_platform_regex: /^https?:\/\/platform\.twitter\.com\//i
     };
     function Kloutify(windowLocation) {
-      this.element = $("<div id=\"" + this.config.element_id + "\"><div></div><div id=\"" + this.config.score_id + "\">??</div></div>");
+      this.element = $('<div/>', {
+        id: this.config.element_id
+      }).append($('<div/>')).append($('<div/>', {
+        id: this.config.score_id,
+        text: this.config.default_score
+      }));
       if (windowLocation.match(this.config.on_twitter_regex)) {
         this.config.username_regex = this.config.on_twitter_username_regex;
         if (windowLocation.match(this.config.on_twitter_platform_regex)) {
@@ -28,11 +33,12 @@
       }
     }
     Kloutify.prototype.init = function() {
-      return $('body').append(this.element).delegate('a', 'mouseenter', __bind(function(event) {
-        return this.mouseentered(event);
-      }, this)).delegate('a', 'mouseleave', __bind(function(event) {
-        return this.mouseleft(event);
-      }, this));
+      var _this = this;
+      return $('body').append(this.element).delegate('a', 'mouseenter', function(event) {
+        return _this.mouseentered(event);
+      }).delegate('a', 'mouseleave', function(event) {
+        return _this.mouseleft(event);
+      });
     };
     Kloutify.prototype.extractUsername = function(anchor) {
       var matches, regex, text;
@@ -56,12 +62,13 @@
     };
     Kloutify.prototype.mouseentered = function(event) {
       var el, username;
+      var _this = this;
       el = $(event.currentTarget);
       username = this.extractUsername(el);
       if (username != null) {
-        return this.timer = setTimeout(__bind(function() {
-          return this.update(el, username);
-        }, this), this.config.timer_value);
+        return this.timer = setTimeout(function() {
+          return _this.update(el, username);
+        }, this.config.timer_value);
       }
     };
     Kloutify.prototype.mouseleft = function(event) {
@@ -76,17 +83,18 @@
       });
     };
     Kloutify.prototype.update = function(anchor, username) {
+      var _this = this;
       this.username = username;
       this.offset = anchor.offset();
       this.offset.top -= Math.ceil((this.element.outerHeight(true) - anchor.outerHeight(true)) / 2);
       if (this.scores[username] != null) {
         return this.updateScore(username, this.scores[username]);
       } else {
-        return $.getJSON("http://" + this.config.host + "/klout/" + this.username + ".json", __bind(function(json) {
+        return $.getJSON("http://" + this.config.host + "/klout/" + this.username + ".json", function(json) {
           var score;
-          score = (json != null ? json.kscore : void 0) != null ? Math.round(json.kscore) : '??';
-          return this.updateScore(this.username, score);
-        }, this));
+          score = (json != null ? json.kscore : void 0) != null ? Math.round(json.kscore) : _this.config.default_score;
+          return _this.updateScore(_this.username, score);
+        });
       }
     };
     Kloutify.prototype.updateScore = function(username, score) {

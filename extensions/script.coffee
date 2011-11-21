@@ -6,6 +6,7 @@ class Kloutify
 	timer: null
 	element: null
 	config: 
+		default_score: '10'
 		element_id: 'kloutify'
 		score_id: 'kloutify-score'
 		timer_value: 600
@@ -17,7 +18,9 @@ class Kloutify
 		on_twitter_platform_regex: /^https?:\/\/platform\.twitter\.com\//i
 
 	constructor: (windowLocation)->
-		@element = $ "<div id=\"#{@config.element_id}\"><div></div><div id=\"#{@config.score_id}\">??</div></div>"
+		# @element = $ "<div id=\"#{@config.element_id}\"><div></div><div id=\"#{@config.score_id}\">??</div></div>"
+		@element = $('<div/>', id: @config.element_id).append($ '<div/>').append($ '<div/>', {id: @config.score_id, text: @config.default_score})
+		
 		if windowLocation.match @config.on_twitter_regex
 			@config.username_regex = @config.on_twitter_username_regex
 			@config.on_twitter_platform = yes if windowLocation.match @config.on_twitter_platform_regex
@@ -68,7 +71,7 @@ class Kloutify
 			@updateScore username, @scores[username]
 		else
 			$.getJSON "http://#{@config.host}/klout/#{@username}.json", (json) =>
-				score = if json?.kscore? then Math.round(json.kscore) else '??' 
+				score = if json?.kscore? then Math.round(json.kscore) else @config.default_score
 				@updateScore @username, score
 	
 	updateScore: (username, score) ->
