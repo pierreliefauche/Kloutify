@@ -1,76 +1,61 @@
-http = require 'http'
-memcache = require 'memcache'
-defaultScoreJson = '{ "kscore": 10 }'
+request   = require 'request'
+memcache  = require 'memcache'
+config    = require './config'
 
-config = require './config'
+###
+Configure cache client to store Klout scores
+###
+cache = new memcache.Client()
+cache.on 'error', (error)->
+	console.log "Cache client error: #{error}"
+	cache = null
+.on 'timeout', ()->
+	console.log "Cache client did timeout"
+.connect()
 
+getFromCache = (key, callback) ->
+	return callback 'No cache client set' unless cache
+	cache.get key, callback
+
+setInCache = (key, value, lifetime, callback) ->
+	return callback 'No cache client set' unless cache
+	cache.set key, value, callback, lifetime
+
+###
+Klout API
+###
+getKloutScore = (username, callback) ->
+	defaultScoreJson = '{ "kscore": 10 }'
+	resource = "http://api.klout.com/1/klout.json?users=#{username}&key=#{config.kloutApi.key}"
+	request resource, (error, response, body)->
+		unless error or response.statusCode isnt 200
+			try
+				data = JSON.parse body
+				console.log data
+				if data.status is 200 and typeof data.users is 'object' and data.users.length
+					return callback JSON.stringify(data.users.shift())
+
+			catch e
+				error = e			
+
+		# An error happened
+		console.log "Error while getting Klout score of '#{username}': #{error}"
+		return callback defaultScoreJson
+
+###
+Web server
+###
 require('zappa').run process.env.PORT or config.port, ->
-
-	@helper getKloutScore: (username, callback) ->
-		try
-			http.request
-				method: 'GET'
-				host: 'api.klout.com'
-				port: 80
-				path: "/1/klout.json?users=#{username}&key=#{config.kloutApi.key}"
-			.on 'response', (res) ->
-				return callback defaultScoreJson if res.statusCode isnt 200
-			
-				data = ''
-				res.on 'data', (chunk) ->
-					data += chunk
-				.on 'end', ->
-					parsedData = JSON.parse(data)
-					return callback defaultScoreJson if parsedData.status isnt 200 or not parsedData.users? or typeof parsedData.users is 'undefined'
-					callback if data.length > 0 then JSON.stringify(parsedData.users[0]) else defaultScoreJson
-			.end()
-		catch error
-			console.log "ERROR WHILE GETTING SCORE OF #{username} FROM THE API"
-			console.log error
-
-	@helper getFromCache: (key, callback) ->
-		try
-			client = new memcache.Client()
-			client.on 'error', (err) ->
-				callback false
-			.on 'timeout', () ->
-				callback false
-			.on 'connect', ()->
-				client.get key, (error, result) ->
-					client.close()
-					result = false if error?
-					callback result
-			.connect()	
-		catch error
-			console.log 'ERROR WHILE GETTING SCORE FROM CACHE'
-			console.log error
-
-	@helper setInCache: (key, value, lifetime, callback) ->
-		try
-			client = new memcache.Client()
-			client.on 'error', (err) ->
-				callback false
-			.on 'timeout', () ->
-				callback false
-			.on 'connect', ()->
-				client.set key, value, (error, result) ->
-					client.close()
-					callback? if error? then false else true
-				, lifetime
-			.connect()
-		catch error
-			console.log 'ERROR WHILE SETTING SCORE INTO CACHE'
-			console.log error
 	
-	@get '/klout/:username.json', ->
-		urlKey = "/klout/#{@params.username}.json"
+	@get '/klout/:username.json', ()->
 		@response.header 'Access-Control-Allow-Origin', '*'
 		@response.contentType 'application/json'
-		@getFromCache urlKey, (data) =>
-			return @send data if data isnt false and data isnt null
-			@getKloutScore @params.username, (json) =>
-				@send json
-				if json isnt 'null' then @setInCache urlKey, json, 60*60*1
+		
+		getFromCache @request.url, (error, data) =>
+			return @send data unless error
+			getKloutScore @params.username, (jsonString) =>
+				@send jsonString
+				setInCache @request.url, jsonString, config.cacheTTL, ()->
 	
 	@get '/', ->
 		@render 'index'
@@ -111,7 +96,7 @@ require('zappa').run process.env.PORT or config.port, ->
 				# base href: 'http://kloutify.com/'
 				link rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'
 				link rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico'
-				link rel: 'stylesheet', href: '/app.css'
+				link rel: 'stylesheet', href: '/main.css'
 				script type: 'text/javascript', '''
 					var _gaq = _gaq || [];
 					  _gaq.push(['_setAccount', 'UA-24838928-1']);
