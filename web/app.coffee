@@ -12,7 +12,7 @@ require('zappa').run process.env.PORT or config.port, ->
 				method: 'GET'
 				host: 'api.klout.com'
 				port: 80
-				path: "/1/klout.json?users=#{username}&key=jgjncb86z9fsw7sbufpu2ysg"
+				path: "/1/klout.json?users=#{username}&key=#{config.kloutApi.key}"
 			.on 'response', (res) ->
 				return callback defaultScoreJson if res.statusCode isnt 200
 			
