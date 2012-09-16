@@ -18,21 +18,20 @@ if config.useCache
   Klout API
 ###
 getKloutScore = (username, callback) ->
-  defaultScore = 10
   resource = "http://api.klout.com/1/klout.json?users=#{username}&key=#{config.kloutApi.key}"
   request resource, (error, response, body)->
     unless error or response.statusCode isnt 200
       try
         data = JSON.parse body
         if data.status is 200 and typeof data.users is 'object' and data.users.length
-          return callback data.users[0].kscore or defaultScore
+          return callback data.users[0].kscore or config.defaultScore
 
       catch e
         error = e
 
     # An error happened
     console.log "Error while getting Klout score of '#{username}': #{error}"
-    return callback defaultScore
+    return callback config.defaultScore
 
 ###
   Helpers
@@ -48,7 +47,7 @@ sendJson = (res, json)->
 # Cache middleware: immediately respond cached response if available,
 # otherwise hijack the response object to cache its body
 cacheable = (req, res, next)->
-  next() unless cache
+  return next() unless cache
   cache.get req.url, (error, data)->
     if data and not error
       data = JSON.parse data
