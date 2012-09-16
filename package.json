@@ -13,8 +13,7 @@
     "coffee-script": ">=1.2.0",
     "zappa": "0.3.1",
     "request": ">=2.11.1",
-    "memcache": ">=0.2.0",
-    "memjs": ">=0.3.1"
+    "memcache": ">=0.2.0"
   },
   "keywords": ["klout", "browser", "extension"]
 }
