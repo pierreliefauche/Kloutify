@@ -5,13 +5,14 @@ config    = require './config'
 ###
   Configure cache client to store Klout scores
 ###
-cache = new memcache.Client()
-cache.on 'error', (error)->
-  console.log "Cache client error: #{error}"
-  cache = null
-.on 'timeout', ()->
-  console.log "Cache client did timeout"
-.connect()
+if config.useCache
+  cache = new memcache.Client()
+  cache.on 'error', (error)->
+    console.log "Cache client error: #{error}"
+    cache = null
+  .on 'timeout', ()->
+    console.log "Cache client did timeout"
+  .connect()
 
 ###
   Klout API
@@ -39,23 +40,31 @@ getKloutScore = (username, callback) ->
 
 # Send JSON over the response
 sendJson = (res, json)->
-  res.header 'Access-Control-Allow-Origin', '*'
-  res.contentType 'application/json'
   json = JSON.stringify json unless typeof json is 'string'
-  res.send json
+  res.send json,
+    'Access-Control-Allow-Origin': '*'
+    'Content-Type': 'application/json'
 
 # Cache middleware: immediately respond cached response if available,
 # otherwise hijack the response object to cache its body
 cacheable = (req, res, next)->
-  if cache
-    cache.get req.url, (error, data)->
-      return sendJson res, data unless error
+  cache.delete '/'
+  next() unless cache
+  cache.get req.url, (error, data)->
+    if data and not error
+      data = JSON.parse data
+      res.send data.body, data.headers, data.status
+    else
       _send = res.send
       res.send = (body, headers, status)->
         res.send = _send
         res.send body, headers, status
-        cache.set req.url, body, (()->), config.cacheTTL
-  next()
+        data = JSON.stringify
+          body: body
+          headers: headers
+          status: status
+        cache.set req.url, data, (()->), config.cacheTTL
+      next()
 
 ###
   Web server
