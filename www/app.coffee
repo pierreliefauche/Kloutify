@@ -1,37 +1,36 @@
 request   = require 'request'
-memcache  = require 'memcache'
+Klout     = require 'coffee_klout'
 config    = require './config'
 
 ###
   Configure cache client to store Klout scores
 ###
 if config.useCache
-  cache = new memcache.Client()
+  cache = require('redis').createClient()
+  cache.setMaxListeners 0
+  cache.autoReconnect = yes
   cache.on 'error', (error)->
     console.log "Cache client error: #{error}"
     cache = null
-  .on 'timeout', ()->
-    console.log "Cache client did timeout"
-  .connect()
 
 ###
   Klout API
 ###
-getKloutScore = (username, callback) ->
-  resource = "http://api.klout.com/1/klout.json?users=#{username}&key=#{config.kloutApi.key}"
-  request resource, (error, response, body)->
-    unless error or response.statusCode isnt 200
-      try
-        data = JSON.parse body
-        if data.status is 200 and typeof data.users is 'object' and data.users.length
-          return callback data.users[0].kscore or config.defaultScore
+klout = new Klout
+  key: config.kloutApi.key
+  cacheClient: cache
+  cacheLifetime: 14400 # 4 hours
 
-      catch e
-        error = e
+getKloutScore = (userId, callback) ->
+  klout.getUserScore userId, (error, kloutScore)->
+    console.log error if error
+    callback if error or not kloutScore then config.defaultScore else kloutScore.score
 
-    # An error happened
-    console.log "Error while getting Klout score of '#{username}': #{error}"
-    return callback config.defaultScore
+getKloutScoreFromTwitter = (twitterHandle, callback)->
+  getKloutScore 'twitter_screen_name': twitterHandle, callback
+
+getKloutScoreFromGoogle = (googleId, callback)->
+  getKloutScore 'google_id': googleId, callback
 
 ###
   Helpers
@@ -46,38 +45,38 @@ sendJson = (res, json)->
 
 # Cache middleware: immediately respond cached response if available,
 # otherwise hijack the response object to cache its body
-cacheable = (req, res, next)->
-  return next() unless cache
-  cache.get req.url, (error, data)->
-    if data and not error
-      data = JSON.parse data
-      res.send data.body, data.headers, data.status
-    else
-      _send = res.send
-      res.send = (body, headers, status)->
-        res.send = _send
-        res.send body, headers, status
-        data = JSON.stringify
-          body: body
-          headers: headers
-          status: status
-        cache.set req.url, data, (()->), config.cacheTTL
-      next()
+# cacheable = (req, res, next)->
+#   return next() unless cache
+#   cache.get req.url, (error, data)->
+#     if data and not error
+#       data = JSON.parse data
+#       res.send data.body, data.headers, data.status
+#     else
+#       _send = res.send
+#       res.send = (body, headers, status)->
+#         res.send = _send
+#         res.send body, headers, status
+#         data = JSON.stringify
+#           body: body
+#           headers: headers
+#           status: status
+#         cache.set req.url, data, (()->), config.cacheTTL
+#       next()
 
 ###
   Web server
 ###
 require('zappa').run process.env.PORT or config.port, ->
 
-  @use 'static', cacheable
+  @use 'static'
 
   # Legacy
   @get '/klout/:username.json', ()->
-    getKloutScore @params.username, (score) =>
-      sendJson @response, {'kscore': score}
+    getKloutScore 'twitter_screen_name': @params.username, (score) =>
+      sendJson @response, 'kscore': score
 
   @get '/2/twitter/:username.json', ()->
-    getKloutScore @params.username, (score) =>
+    getKloutScore 'twitter_screen_name': @params.username, (score) =>
       sendJson @response,
         'twitter': @params.username
         'score': score
