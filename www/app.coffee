@@ -1,12 +1,13 @@
 request   = require 'request'
 memcache  = require 'memcache'
+memjs     = require 'memjs'
 config    = require './config'
 
 ###
   Configure cache client to store Klout scores
 ###
 if config.useCache
-  cache = new memcache.Client()
+  cache = if process.env.MEMCACHE_USERNAME then memjs.Client.create() else new memcache.Client()
   cache.on 'error', (error)->
     console.log "Cache client error: #{error}"
     cache = null
@@ -48,7 +49,6 @@ sendJson = (res, json)->
 # Cache middleware: immediately respond cached response if available,
 # otherwise hijack the response object to cache its body
 cacheable = (req, res, next)->
-  cache.delete '/'
   next() unless cache
   cache.get req.url, (error, data)->
     if data and not error
