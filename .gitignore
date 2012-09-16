@@ -1,4 +1,4 @@
 .DS_Store
 *.tmproj
 node_modules/*
-web/public/extension/*
+www/public/extension/*
