@@ -1,4 +1,3 @@
-request   = require 'request'
 Klout     = require 'coffee_klout'
 config    = require './config'
 
@@ -42,26 +41,6 @@ sendJson = (res, json)->
   res.send json,
     'Access-Control-Allow-Origin': '*'
     'Content-Type': 'application/json'
-
-# Cache middleware: immediately respond cached response if available,
-# otherwise hijack the response object to cache its body
-# cacheable = (req, res, next)->
-#   return next() unless cache
-#   cache.get req.url, (error, data)->
-#     if data and not error
-#       data = JSON.parse data
-#       res.send data.body, data.headers, data.status
-#     else
-#       _send = res.send
-#       res.send = (body, headers, status)->
-#         res.send = _send
-#         res.send body, headers, status
-#         data = JSON.stringify
-#           body: body
-#           headers: headers
-#           status: status
-#         cache.set req.url, data, (()->), config.cacheTTL
-#       next()
 
 ###
   Web server
